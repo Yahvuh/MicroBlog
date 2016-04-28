@@ -1,5 +1,6 @@
-html
-head
-	title Hello
-body
-	h1 Hello
+extends layout
+
+block content
+	h1= title
+	p Welcome to #{title}
+	a(href="/admin") Admin Panel
