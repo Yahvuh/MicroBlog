@@ -4,11 +4,16 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
-var routes = require('./routes/index');
-var admin = require('./routes/admin');
+var session = require('express-session');
 
 var app = express();
+
+
+//var admin = require('./routes/admin');
+
+// database setup
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/test')
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -18,12 +23,22 @@ app.set('view engine', '.jade');
 //app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+//Don't actually use secret in production.
+//Use envirionment variable or something
+app.use(session(
+  {
+    secret: "MicroBlog", 
+    resave: false, 
+    saveUninitialized: true
+  }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+var routes = require('./routes/index');
 app.use('/', routes);
-app.use('/admin', admin);
+//app.use('/admin', admin);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,10 +1,10 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET home page. */
-router.get('/admin', function(req, res, next)
+//In app.js, /admin is defined as the route. So technically / is /admin in this case
+router.get('/', function(req, res, next)
 {
-	console.log("GET at /admin")
+	console.log("GET at /admin");
 	res.render('admin');
 });
 
