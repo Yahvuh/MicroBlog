@@ -4,3 +4,10 @@ block content
 	h1 #{username}
 	
 	p Welcome to #{name}'s homepage
+	
+	h3 All of #{name}'s posts
+	each post in blogPosts
+		div.post
+			h1 #{post.title} by #{post.username}
+			p #{post.content}
+			

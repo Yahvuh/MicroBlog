@@ -30,8 +30,8 @@ app.use(cookieParser());
 //Use envirionment variable or something
 app.use(session(
   {
-    secret: "MicroBlog", 
-    resave: false, 
+    secret: "MicroBlog",
+    resave: false,
     saveUninitialized: true
   }));
 app.use(express.static(path.join(__dirname, 'public')));

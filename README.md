@@ -4,3 +4,4 @@ Microblogging service thing made with Node.js/Express
 ## Todo
 - Working without Postman/in browser
 - S/CRUD API
+- Document the codebase like a sane human
