@@ -62,7 +62,8 @@ router.get('/dashboard', function(req, res)
 {
 	if(!req.session.user)
 	{
-		res.redirect('/')
+		res.redirect('/login');
+		
 		//return res.status(401).send()
 	}
 
@@ -112,41 +113,29 @@ router.route('/register')
 
 router.get('/users/:username', function(req, res)
 {
-	//console.log(req.params);
-
-	// var blogPosts = [
-	// 	Post.find({username: "123"}, function(err, posts)
-	// 	{
-	// 		for(i=0;i<posts.length;i++)
-	// 		{
-	// 			posts[i];
-	// 		}
-	// 	})];
-
+	//Create an array of blogposts.
+	//Then, find all posts by the requests user, and push them into the array
 	var blogPosts = [];
-
-	Post.find({username: "123"}, function(err, posts)
+	Post.find({username: req.params.username}, function(err, posts)
 	{
 		for(i=0;i<posts.length;i++)
 		{
-			//console.log(posts[i])
-			//blogPosts.push(posts[i]);
-			console.log(posts[i]);
 			blogPosts.push(posts[i]);
 		}
 	});
 
+	//Actually find the user in question, send data to Jade to template
 	User.findOne({username: req.params.username}, function(err, user)
 		{
 			if(err)
 			{
 				return res.send(err);
 			}
-			console.log(blogPosts.length)
 			res.render("user", {username: user.username, name: user.firstname + ' ' + user.lastname, blogPosts: blogPosts});
 		});
 });
 
+//Create a post
 router.post('/create', function(req, res)
 {
 	if(!req.session.user)
