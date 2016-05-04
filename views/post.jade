@@ -2,5 +2,8 @@ extends layout
 
 block content
 	div.singlePost
-		h1 #{title} by #{username}
+		h1 #{title} by 
+			a(href="/users/#{username}") #{username}
 		p #{content}
+	if sameUser
+		include ./includes/formstuff.jade

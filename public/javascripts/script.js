@@ -5,8 +5,8 @@ $(function()
     $('#addPost').toggle();
   });
 
-  $('#showEdit').on('click', function()
+  $('.showEdit').on('click', function()
   {
-    $('#editPost').toggle();
+    $('.editPost').toggle();
   })
 });

@@ -8,10 +8,10 @@ router.get('/', function(req, res, next)
 {
 	if(!req.session.user)
 	{
-		res.render('index', { title: 'MicroBlog' });
+		return res.render('index', { title: 'MicroBlog' });
 	}
 
-	res.redirect('/dashboard');
+	return res.redirect('/dashboard');
 });
 
 router.route('/login')
@@ -23,7 +23,6 @@ router.route('/login')
 
 	.post(function(req, res, next)
 	{
-		console.log(req.body)
 		var username = req.body.username;
 		var password = req.body.password;
 
@@ -86,14 +85,10 @@ router.route('/register')
 
 	.post(function(req, res, next)
 	{
-		console.log('POST request at /register');
 		var firstname = req.body.firstname;
 		var lastname = req.body.lastname;
 		var username = req.body.username;
 		var password = req.body.password;
-		//console.log(req.get('Content-Type'));
-		console.log(req.body)
-		//console.log(req.params);
 
 		var newUser = new User();
 		newUser.firstname = firstname;
@@ -107,7 +102,7 @@ router.route('/register')
 				console.log(err);
 				return res.status(500).send();
 			}
-			return res.status(200).send();
+			return res.redirect('/login');
 		});
 	});
 
@@ -116,6 +111,7 @@ router.get('/users/:username', function(req, res)
 	//Create an array of blogposts.
 	//Then, find all posts by the requests user, and push them into the array
 	var blogPosts = [];
+
 	Post.find({username: req.params.username}, function(err, posts)
 	{
 		for(i=0;i<posts.length;i++)
@@ -127,13 +123,39 @@ router.get('/users/:username', function(req, res)
 	//Actually find the user in question, send data to Jade to template
 	User.findOne({username: req.params.username}, function(err, user)
 	{
+		if(err)
+		{
+			//return res.send(err);
+			return res.status(404).send()
+		}
+		if(user == null)
+		{
+			console.log('Not Found');
+			return res.status(404).send({message: 'Not Found'});
+		}
+		if(blogPosts.length == 0)
+		{
+			return res.render("user", {notEmpty: false, username: user.username, name: user.firstname + ' ' + user.lastname, blogPosts: blogPosts});
+		}
 
+		return res.render("user", {notEmpty: true, username: user.username, name: user.firstname + ' ' + user.lastname, blogPosts: blogPosts});
+	});
+});
+
+router.get('/users', function(req, res)
+{
+	var users = [];
+	User.find(function(err, user)
+	{
 		if(err)
 		{
 			return res.send(err);
 		}
-
-		res.render("user", {username: user.username, name: user.firstname + ' ' + user.lastname, blogPosts: blogPosts});
+		for(i=0;i<user.length;i++)
+		{
+			users.push(user[i].username);
+		}
+		return res.render('allUsers', {userCount: user.length, userList: users});
 	});
 });
 
@@ -159,10 +181,12 @@ router.post('/create', function(req, res)
 		if(err)
 		{
 			console.log(err);
-			res.status(500).send();
+			return res.status(500).send();
 		}
 		console.log('Post created');
 		console.log(newPost);
+
+		return res.redirect('/users/' + newPost.username + '/' + newPost.urlTitle)
 	});
 });
 
@@ -172,16 +196,38 @@ router.route('/users/:username/:urlTitle')
 	{
 		Post.findOne({urlTitle: req.params.urlTitle}, function(err, post)
 		{
+			console.log(post.title)
 			if(err)
 			{
 				return res.send(err);
 			}
 
-			res.render('post', {username: post.username, title: post.title, content: post.content});
+			//Checks if there is a user session. If so, it checks if the session user is the same as the post user
+			if(req.session.user)
+			{
+				console.log('logged in');
+				if(req.session.user.username == req.params.username)
+				{
+					console.log('same user');
+					return res.render('post', {sameUser: true, username: post.username, urlTitle: post.urlTitle, content: post.content, title: post.title});
+				}
+				else
+				{
+					console.log('not the same user')
+				}
+			}
+			else
+			{
+				console.log('not logged in');
+			}
+
+			console.log(post.id)
+
+			return res.render('post', {sameUser: false, username: post.username, urlTitle: post.title, content: post.content, title: post.title});
 		});
 	});
 
-router.route('/post/:_id')
+router.route('/post/:urlTitle')
 	.post(function(req, res)
 	{
 		if(!req.session.user)
@@ -189,20 +235,19 @@ router.route('/post/:_id')
 			return res.status(401).send();
 		}
 
-		console.log(req.params._id);
-
-		Post.findOne({_id: req.params._id}, function(err, post)
+		Post.findOne({urlTitle: req.params.urlTitle}, function(err, post)
 		{
 			if(err)
 			{
 				return res.send(err);
 			}
 
-			if(req.session.user.username == post.username && req.params._id == post._id)
+			if(req.session.user.username == post.username && req.params.urlTitle == post.urlTitle)
 			{
+				username = post.username;
 				Post.remove(
 				{
-					_id: req.params._id
+					urlTitle: req.params.urlTitle
 				}, function(err, post)
 				{
 					if(err)
@@ -210,34 +255,40 @@ router.route('/post/:_id')
 						return res.send(err)
 					}
 					console.log('Deleted');
-					res.redirect('/dashboard');
+					return res.redirect('/users/' + username);
 				});
 			}
 		});
 
 	});
 
-router.route('/edit/:_id')
+router.route('/edit/:urlTitle')
 	.post(function(req, res)
 	{
+		console.log(req.params)
 		//Without sending 401, users not logged in would crash application
 		if(!req.session.user)
 		{
 			return res.redirect('/login')
 		}
-
-		Post.findOne({_id: req.params._id}, function(err, post)
+		oldTitle = req.params.urlTitle.replace(/ /g,"_").toLowerCase();
+		console.log(oldTitle);
+		Post.findOne({urlTitle: oldTitle}, function(err, post)
 		{
 			if(err)
 			{
 				return res.send(err);
+				console.log('error')
 			}
-
-			if(req.session.user.username == post.username && req.params._id == post._id)
+			console.log('starting check')
+			if(req.session.user.username == post.username && oldTitle == post.urlTitle)
 			{
 				if(err)
-					console.log(err)
+				{
+					return res.send(err);
+				}
 
+				console.log('replacing')
 				title = req.body.title;
 				urlTitle = title.replace(/ /g,"_").toLowerCase();
 				content = req.body.content;

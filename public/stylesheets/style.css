@@ -17,7 +17,11 @@ a {
   display: none;
 }
 
-#editPost
+.editPost
 {
   display: none;
+}
+.edit
+{
+
 }

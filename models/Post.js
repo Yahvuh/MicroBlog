@@ -17,11 +17,10 @@ postSchema.pre('save', function(next)
 	if(!post.isModified('title'))
 	{
 		console.log('Not Modified');
-		//return next();
+		return next();
 	}
-
+	next();
 });
-
 
 var Post = mongoose.model('post', postSchema);
 module.exports = Post;

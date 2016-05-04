@@ -4,9 +4,10 @@ block content
 	h1 #{username}
 	
 	p Welcome to #{name}'s homepage
-	
-	h3 All of #{name}'s posts
-	each post in blogPosts
-		//a(href="/users/#{post.username}/#{post.urlTitle}")
-		div.post
-			include ./includes/test.jade
+	if notEmpty
+		h3 All of #{name}'s posts
+			each post in blogPosts
+				div.post
+					include ./includes/post.jade
+	else
+		h3 #{name} hasn't posted anything yet.

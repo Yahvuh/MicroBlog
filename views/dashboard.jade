@@ -1,7 +1,9 @@
 extends layout
 
 block content
-	h1 Welcome back #{username}
+	h1 Welcome back 
+		a(href='/users/#{username}') #{username}
+	
 	a(href="/logout") Log out
 	br
 	br
