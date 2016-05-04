@@ -11,3 +11,13 @@ a {
 {
   border: 1px solid black;
 }
+
+#addPost
+{
+  display: none;
+}
+
+#editPost
+{
+  display: none;
+}

@@ -7,7 +7,6 @@ block content
 	
 	h3 All of #{name}'s posts
 	each post in blogPosts
+		//a(href="/users/#{post.username}/#{post.urlTitle}")
 		div.post
-			h1 #{post.title} by #{post.username}
-			p #{post.content}
-			
+			include ./includes/test.jade

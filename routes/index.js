@@ -63,7 +63,7 @@ router.get('/dashboard', function(req, res)
 	if(!req.session.user)
 	{
 		res.redirect('/login');
-		
+
 		//return res.status(401).send()
 	}
 
@@ -126,13 +126,15 @@ router.get('/users/:username', function(req, res)
 
 	//Actually find the user in question, send data to Jade to template
 	User.findOne({username: req.params.username}, function(err, user)
+	{
+
+		if(err)
 		{
-			if(err)
-			{
-				return res.send(err);
-			}
-			res.render("user", {username: user.username, name: user.firstname + ' ' + user.lastname, blogPosts: blogPosts});
-		});
+			return res.send(err);
+		}
+
+		res.render("user", {username: user.username, name: user.firstname + ' ' + user.lastname, blogPosts: blogPosts});
+	});
 });
 
 //Create a post
@@ -150,6 +152,7 @@ router.post('/create', function(req, res)
 	var newPost = new Post();
 	newPost.username = username;
 	newPost.title = title;
+	newPost.urlTitle = title.replace(/ /g,"_").toLowerCase();
 	newPost.content = content;
 	newPost.save(function(err, savedPost)
 	{
@@ -159,7 +162,95 @@ router.post('/create', function(req, res)
 			res.status(500).send();
 		}
 		console.log('Post created');
+		console.log(newPost);
 	});
 });
+
+router.route('/users/:username/:urlTitle')
+
+	.get(function(req, res)
+	{
+		Post.findOne({urlTitle: req.params.urlTitle}, function(err, post)
+		{
+			if(err)
+			{
+				return res.send(err);
+			}
+
+			res.render('post', {username: post.username, title: post.title, content: post.content});
+		});
+	});
+
+router.route('/post/:_id')
+	.post(function(req, res)
+	{
+		if(!req.session.user)
+		{
+			return res.status(401).send();
+		}
+
+		console.log(req.params._id);
+
+		Post.findOne({_id: req.params._id}, function(err, post)
+		{
+			if(err)
+			{
+				return res.send(err);
+			}
+
+			if(req.session.user.username == post.username && req.params._id == post._id)
+			{
+				Post.remove(
+				{
+					_id: req.params._id
+				}, function(err, post)
+				{
+					if(err)
+					{
+						return res.send(err)
+					}
+					console.log('Deleted');
+					res.redirect('/dashboard');
+				});
+			}
+		});
+
+	});
+
+router.route('/edit/:_id')
+	.post(function(req, res)
+	{
+		//Without sending 401, users not logged in would crash application
+		if(!req.session.user)
+		{
+			return res.redirect('/login')
+		}
+
+		Post.findOne({_id: req.params._id}, function(err, post)
+		{
+			if(err)
+			{
+				return res.send(err);
+			}
+
+			if(req.session.user.username == post.username && req.params._id == post._id)
+			{
+				if(err)
+					console.log(err)
+
+				title = req.body.title;
+				urlTitle = title.replace(/ /g,"_").toLowerCase();
+				content = req.body.content;
+				console.log(post)
+				post.update({title: title, content: content, urlTitle: urlTitle}, function(err)
+				{
+					if(err)
+						return res.send(err);
+				});
+				console.log("Edited");
+				res.redirect('/users/' + post.username + '/' + urlTitle);
+			}
+		});
+	});
 
 module.exports = router;
