@@ -6,13 +6,22 @@ var postSchema = new Schema(
 	username: String,
   title: {type: String, index: {unique: true}},
 	urlTitle: {type: String, index: {unique: true}},
-  content: String
+  content: String,
+	createdAt: {type: Date, default: Date.now},
+	timeString: String
 });
 
 postSchema.pre('save', function(next)
 {
 	var post = this;
-	console.log('checking')
+
+	var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	var date = new Date();
+	post.createdAt = date;
+
+	post.timeString = months[date.getMonth()] + " " + date.getDay() + " " + date.getFullYear() + " at " + date.getHours() + ":" + ("0" + date.getMinutes()).slice(-2);
+
+	console.log('checking');
 
 	if(!post.isModified('title'))
 	{

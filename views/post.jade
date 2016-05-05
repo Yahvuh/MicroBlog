@@ -5,5 +5,6 @@ block content
 		h1 #{title} by 
 			a(href="/users/#{username}") #{username}
 		p #{content}
+		p #{postTime}
 	if sameUser
 		include ./includes/formstuff.jade

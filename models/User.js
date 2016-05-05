@@ -8,12 +8,22 @@ var userSchema = new Schema(
 	firstname: String,
 	lastname: String,
 	username: {type: String, index: {unique: true}},
-	password: String
+	password: String,
+	createdAt: {type: Date, default: Date.now},
+	timeString: String
 });
 
 userSchema.pre('save', function(next)
 {
 	var user = this;
+	var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	var date = new Date();
+	user.createdAt = new Date();
+
+	user.timeString = months[date.getMonth()] + " " + date.getDay() + " " + date.getFullYear() + " at " + date.getHours() + ":" + ("0" + date.getMinutes()).slice(-2);
+
+	console.log(user.createdAt);
+	console.log(user.timeString);
 
 	if(!user.isModified('password'))
 	{

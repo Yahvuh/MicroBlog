@@ -61,7 +61,7 @@ router.get('/dashboard', function(req, res)
 {
 	if(!req.session.user)
 	{
-		res.redirect('/login');
+		return res.redirect('/login');
 
 		//return res.status(401).send()
 	}
@@ -125,7 +125,6 @@ router.get('/users/:username', function(req, res)
 	{
 		if(err)
 		{
-			//return res.send(err);
 			return res.status(404).send()
 		}
 		if(user == null)
@@ -133,12 +132,13 @@ router.get('/users/:username', function(req, res)
 			console.log('Not Found');
 			return res.status(404).send({message: 'Not Found'});
 		}
+
 		if(blogPosts.length == 0)
 		{
-			return res.render("user", {notEmpty: false, username: user.username, name: user.firstname + ' ' + user.lastname, blogPosts: blogPosts});
+			return res.render("user", {notEmpty: false, username: user.username, name: user.firstname + ' ' + user.lastname, blogPosts: blogPosts, date: user.timeString});
 		}
 
-		return res.render("user", {notEmpty: true, username: user.username, name: user.firstname + ' ' + user.lastname, blogPosts: blogPosts});
+		return res.render("user", {notEmpty: true, username: user.username, name: user.firstname + ' ' + user.lastname, blogPosts: blogPosts, date: user.timeString});
 	});
 });
 
@@ -174,7 +174,9 @@ router.post('/create', function(req, res)
 	var newPost = new Post();
 	newPost.username = username;
 	newPost.title = title;
-	newPost.urlTitle = title.replace(/ /g,"_").toLowerCase();
+	//If there are any spaces or question marks, replace them
+	title = title.replace(/ /g,"_").toLowerCase();
+	newPost.urlTitle = title.replace(/\?/g,'-');
 	newPost.content = content;
 	newPost.save(function(err, savedPost)
 	{
@@ -196,7 +198,6 @@ router.route('/users/:username/:urlTitle')
 	{
 		Post.findOne({urlTitle: req.params.urlTitle}, function(err, post)
 		{
-			console.log(post.title)
 			if(err)
 			{
 				return res.send(err);
@@ -209,7 +210,7 @@ router.route('/users/:username/:urlTitle')
 				if(req.session.user.username == req.params.username)
 				{
 					console.log('same user');
-					return res.render('post', {sameUser: true, username: post.username, urlTitle: post.urlTitle, content: post.content, title: post.title});
+					return res.render('post', {sameUser: true, username: post.username, urlTitle: post.urlTitle, content: post.content, title: post.title, postTime: post.timeString});
 				}
 				else
 				{
@@ -220,10 +221,7 @@ router.route('/users/:username/:urlTitle')
 			{
 				console.log('not logged in');
 			}
-
-			console.log(post.id)
-
-			return res.render('post', {sameUser: false, username: post.username, urlTitle: post.title, content: post.content, title: post.title});
+			return res.render('post', {sameUser: false, username: post.username, urlTitle: post.title, content: post.content, title: post.title, postTime: post.timeString});
 		});
 	});
 
