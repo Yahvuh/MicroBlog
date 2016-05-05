@@ -3,6 +3,8 @@ extends layout
 block content
 	h1= title
 	p Welcome to #{title}
-	a(href="/login") Log in
+	a(class="showLogin" href="#loginForm") Log in
+	include ./includes/loginForm.jade
 	span  or 
-	a(href='/register') Register
+	a(class="showRegister" href='#registerForm') Register
+	include ./includes/registerForm.jade

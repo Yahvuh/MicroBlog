@@ -7,6 +7,19 @@ a {
   color: #00B7FF;
 }
 
+/*= = = Login Page = = =*/
+
+.loginForm
+{
+  display: none;
+}
+
+.registerForm
+{
+  display: none;
+}
+
+/*= = = End of Login = = =*/
 .post
 {
   border: 1px solid black;
@@ -20,8 +33,4 @@ a {
 .editPost
 {
   display: none;
-}
-.edit
-{
-
 }
