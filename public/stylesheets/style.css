@@ -1,13 +1,29 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+/*= = = Nav Bar = = =*/
+
+nav
+{
+  background-color: #e3e3e3;
 }
 
-a {
-  color: #00B7FF;
+nav ul
+{
+  list-style-type: none;
+  margin: 0;
 }
+
+nav ul li
+{
+  display: inline;
+}
+
+/*= = = End of Nav = = =*/
 
 /*= = = Login Page = = =*/
+
+.indexWrapper
+{
+  text-align: center;
+}
 
 .loginForm
 {
@@ -34,3 +50,26 @@ a {
 {
   display: none;
 }
+
+/*= = = User Posts = = =*/
+
+.singlePost
+{
+  margin: 0 auto;
+  width: 90%;
+  border: 1px solid black;
+  padding: 10px
+}
+
+.timeStamp
+{
+  text-align: right;
+}
+
+.postContent
+{
+  background-color: #e5e5e5;
+  padding: 5px;
+}
+
+/*= = = End User Posts = = =*/

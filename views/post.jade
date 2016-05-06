@@ -4,7 +4,7 @@ block content
 	div.singlePost
 		h1 #{title} by 
 			a(href="/users/#{username}") #{username}
-		p #{content}
-		p #{postTime}
-	if sameUser
-		include ./includes/formstuff.jade
+		p.postContent #{content}
+		p.timeStamp Written on #{postTime}
+		if sameUser
+			include ./includes/formstuff.jade

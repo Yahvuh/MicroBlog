@@ -18,6 +18,10 @@ router.route('/login')
 
 	.get(function(req, res)
 	{
+		if(req.session.user)
+		{
+			return res.redirect('/dashboard');
+		}
 		res.render('login');
 	})
 
@@ -80,6 +84,10 @@ router.get('/logout', function(req, res)
 router.route('/register')
 	.get(function(req, res, next)
 	{
+		if(req.session.user)
+		{
+			return res.redirect('/dashboard');
+		}
 		res.render('register');
 	})
 

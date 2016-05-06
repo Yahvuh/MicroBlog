@@ -19,9 +19,8 @@ postSchema.pre('save', function(next)
 	var date = new Date();
 	post.createdAt = date;
 
-	post.timeString = months[date.getMonth()] + " " + date.getDay() + " " + date.getFullYear() + " at " + date.getHours() + ":" + ("0" + date.getMinutes()).slice(-2);
-
-	console.log('checking');
+	//post.timeString = months[date.getMonth()] + " " + date.getDay() + " " + date.getFullYear() + " at " + date.getHours() + ":" + ("0" + date.getMinutes()).slice(-2);
+		post.timeString = months[date.getMonth()] + " " + date.getDay() + ", " + date.getFullYear();
 
 	if(!post.isModified('title'))
 	{

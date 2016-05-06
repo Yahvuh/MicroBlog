@@ -1,10 +1,12 @@
 extends layout
 
 block content
-	h1= title
-	p Welcome to #{title}
-	a(class="showLogin" href="#loginForm") Log in
-	include ./includes/loginForm.jade
-	span  or 
-	a(class="showRegister" href='#registerForm') Register
-	include ./includes/registerForm.jade
+
+	div.indexWrapper
+		h1= title
+		p Welcome to #{title}
+		a(class="showLogin" href="#") Log in
+		span  or 
+		a(class="showRegister" href='#') Register
+		include ./includes/loginForm.jade
+		include ./includes/registerForm.jade
