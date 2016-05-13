@@ -20,7 +20,7 @@ userSchema.pre('save', function(next)
 	var date = new Date();
 	user.createdAt = new Date();
 
-	user.timeString = months[date.getMonth()] + " " + date.getDay() + " " + date.getFullYear() + " at " + date.getHours() + ":" + ("0" + date.getMinutes()).slice(-2);
+	user.timeString = months[date.getMonth()] + " " + date.getDate() + " " + date.getFullYear() + " at " + date.getHours() + ":" + ("0" + date.getMinutes()).slice(-2);
 
 	console.log(user.createdAt);
 	console.log(user.timeString);

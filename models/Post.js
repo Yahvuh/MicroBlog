@@ -4,10 +4,10 @@ var Schema = mongoose.Schema;
 var postSchema = new Schema(
 {
 	username: String,
-  title: {type: String, index: {unique: true}},
-	urlTitle: {type: String, index: {unique: true}},
-  content: String,
-	createdAt: {type: Date, default: Date.now},
+	title: { type: String, index: { unique: true }},
+	urlTitle: { type: String, index: { unique: true }},
+	content: String,
+	createdAt: { type: String, default: Date.now },
 	timeString: String
 });
 
@@ -19,8 +19,7 @@ postSchema.pre('save', function(next)
 	var date = new Date();
 	post.createdAt = date;
 
-	//post.timeString = months[date.getMonth()] + " " + date.getDay() + " " + date.getFullYear() + " at " + date.getHours() + ":" + ("0" + date.getMinutes()).slice(-2);
-		post.timeString = months[date.getMonth()] + " " + date.getDay() + ", " + date.getFullYear();
+	post.timeString = months[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear();
 
 	if(!post.isModified('title'))
 	{

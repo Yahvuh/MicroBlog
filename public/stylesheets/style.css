@@ -20,11 +20,6 @@ nav ul li
 
 /*= = = Login Page = = =*/
 
-.indexWrapper
-{
-  text-align: center;
-}
-
 .loginForm
 {
   display: none;
@@ -73,3 +68,25 @@ nav ul li
 }
 
 /*= = = End User Posts = = =*/
+
+
+/*= = = Misc Styles = = =*/
+
+/*Forces new line from Text area*/
+p
+{
+  white-space: pre;
+}
+
+/*General cetnering class*/
+.center
+{
+  text-align: center;
+}
+
+ul
+{
+  list-style-type: none;
+}
+
+/*= = = End Misc Styles = = =*/

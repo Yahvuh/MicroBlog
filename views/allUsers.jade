@@ -1,10 +1,11 @@
 extends layout
 
 block content
-  h1 All Users
-  p There are #{userCount} users
-  
-  ul
-    each user in userList
-      li 
-        a(href="/users/#{user}") #{user}
+	div.center
+		h1 All Users
+		p There are #{userCount} users
+
+		ul
+		each user in userList
+				li 
+					a(href="/users/#{user}") #{user}

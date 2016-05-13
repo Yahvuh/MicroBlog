@@ -78,7 +78,8 @@ router.get('/dashboard', function(req, res)
 router.get('/logout', function(req, res)
 {
 	req.session.destroy();
-	return res.status(200).send();
+	//return res.status(200).send();
+	return res.redirect('/');
 });
 
 router.route('/register')
@@ -220,15 +221,7 @@ router.route('/users/:username/:urlTitle')
 					console.log('same user');
 					return res.render('post', {sameUser: true, username: post.username, urlTitle: post.urlTitle, content: post.content, title: post.title, postTime: post.timeString});
 				}
-				// else
-				// {
-				// 	console.log('not the same user')
-				// }
 			}
-			// else
-			// {
-			// 	console.log('not logged in');
-			// }
 			console.log(post)
 			return res.render('post', {sameUser: false, username: post.username, urlTitle: post.title, content: post.content, title: post.title, postTime: post.timeString});
 		});
