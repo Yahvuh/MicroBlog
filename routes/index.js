@@ -115,7 +115,7 @@ router.route('/register')
 		});
 	});
 
-router.get('/users/:username', function(req, res)
+router.get('/@:username', function(req, res)
 {
 	//Create an array of blogposts.
 	//Then, find all posts by the requests user, and push them into the array
@@ -197,11 +197,11 @@ router.post('/create', function(req, res)
 		console.log('Post created');
 		console.log(newPost);
 
-		return res.redirect('/users/' + newPost.username + '/' + newPost.urlTitle)
+		return res.redirect(newPost.username + '/' + newPost.urlTitle)
 	});
 });
 
-router.route('/users/:username/:urlTitle')
+router.route('/@:username/:urlTitle')
 
 	.get(function(req, res)
 	{
@@ -211,19 +211,23 @@ router.route('/users/:username/:urlTitle')
 			{
 				return res.send(err);
 			}
-
-			//Checks if there is a user session. If so, it checks if the session user is the same as the post user
+			//Fix this god damn nesting
+			User.findOne({username: post.username}, function(err, user)
+			{
+				//Checks if there is a user session. If so, it checks if the session user is the same as the post user
 			if(req.session.user)
 			{
 				console.log('logged in');
 				if(req.session.user.username == req.params.username)
 				{
 					console.log('same user');
-					return res.render('post', {sameUser: true, username: post.username, urlTitle: post.urlTitle, content: post.content, title: post.title, postTime: post.timeString});
+					return res.render('post', {sameUser: true, username: post.username, urlTitle: post.urlTitle, content: post.content, title: post.title, postTime: post.timeString, name: user.firstname + " " + user.lastname});
 				}
 			}
-			console.log(post)
-			return res.render('post', {sameUser: false, username: post.username, urlTitle: post.title, content: post.content, title: post.title, postTime: post.timeString});
+			return res.render('post', {sameUser: false, username: post.username, urlTitle: post.title, content: post.content, title: post.title, postTime: post.timeString, name: user.firstname + " " + user.lastname});
+			});
+
+			
 		});
 	});
 
@@ -255,7 +259,7 @@ router.route('/post/:urlTitle')
 						return res.send(err)
 					}
 					console.log('Deleted');
-					return res.redirect('/users/' + username);
+					return res.redirect('/' + username);
 				});
 			}
 		});
@@ -299,7 +303,7 @@ router.route('/edit/:urlTitle')
 						return res.send(err);
 				});
 				console.log("Edited");
-				res.redirect('/users/' + post.username + '/' + urlTitle);
+				res.redirect(post.username + '/' + urlTitle);
 			}
 		});
 	});

@@ -2,9 +2,9 @@ extends layout
 
 block content
 	div.singlePost
-		h1 #{title} by 
-			a(href="/users/#{username}") #{username}
+		a(class="name" href="/@#{username}") #{name}
+		span.timeStamp #{postTime}
+		span.title #{title}
 		p.postContent #{content}
-		p.timeStamp Written on #{postTime}
 		if sameUser
 			include ./includes/formstuff.jade
