@@ -4,7 +4,7 @@ block content
 	div.singlePost
 		a(class="name" href="/@#{username}") #{name}
 		span.timeStamp #{postTime}
-		span.title #{title}
+		h1.title #{title}
 		p.postContent #{content}
 		if sameUser
 			include ./includes/formstuff.jade

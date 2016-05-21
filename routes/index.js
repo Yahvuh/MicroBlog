@@ -3,6 +3,8 @@ var router = express.Router();
 var User = require('../models/User');
 var Post = require('../models/Post');
 
+var loggedIn;
+
 /* GET home page. */
 router.get('/', function(req, res, next)
 {
@@ -47,7 +49,7 @@ router.route('/login')
 				{
 					if(isMatch && isMatch == true)
 					{
-						console.log('Logged In');
+						loggedIn = true;
 						req.session.user = user;
 						res.redirect('/dashboard')
 					}
@@ -70,12 +72,17 @@ router.get('/dashboard', function(req, res)
 
 	//return res.status(200).send();
 	console.log('Accessed Dashboard');
-	res.render('dashboard', {username: req.session.user.username});
+	res.render('dashboard', {loggedIn: loggedIn, username: req.session.user.username});
 });
 
 router.get('/logout', function(req, res)
 {
+	if(!req.session.user)
+	{
+		return res.redirect('/login');
+	}
 	req.session.destroy();
+	loggedIn = false;
 	//return res.status(200).send();
 	return res.redirect('/');
 });
@@ -96,6 +103,12 @@ router.route('/register')
 		var lastname = req.body.lastname;
 		var username = req.body.username;
 		var password = req.body.password;
+
+		//If the username doesn't match alphanumeric, slash or underscore
+		if(username != username.match(/^[a-z\d\-_]+$/i))
+		{
+			return res.redirect('back');
+		}
 
 		var newUser = new User();
 		newUser.firstname = firstname;
@@ -119,7 +132,6 @@ router.route('/@:username')
 		//Create an array of blogposts.
 		//Then, find all posts by the requests user, and push them into the array
 		var blogPosts = [];
-		var loggedIn = false;
 
 		Post.find({username: req.params.username}, function(err, posts)
 		{
@@ -148,7 +160,8 @@ router.route('/@:username')
 					sameUser = true;
 				}
 
-				if(user.followers.length != null)
+				//Ensures followers is not null, and makes sure its large than 0
+				if(user.followers != null && user.followers.length > 0)
 				{
 					for (var i = 0; i < user.followers.length; i++)
 					{
@@ -179,11 +192,15 @@ router.route('/@:username')
 			if(err || !req.session.user)
 				return res.status(404).send();
 
-			for(var i = 0; i < user.followers.length; i++)
+			//reduce how many times I use this in the future lol
+			if(user.followers != null && user.followers.length > 0)
 			{
-				if(user.followers[i] == req.session.user.username)
+				for(var i = 0; i < user.followers.length; i++)
 				{
-					alreadyFollowing = true;
+					if(user.followers[i] == req.session.user.username)
+					{
+						alreadyFollowing = true;
+					}
 				}
 			}
 
@@ -217,21 +234,27 @@ router.get('/users', function(req, res)
 		{
 			users.push(user[i].username);
 		}
-		return res.render('allUsers', {userCount: user.length, userList: users});
+		return res.render('allUsers', {loggedIn: loggedIn, userCount: user.length, userList: users});
 	});
 });
 
 //Create a post
 router.post('/create', function(req, res)
 {
-	if(!req.session.user)
-	{
-		console.log('No user');
-		return res.status(403).send();
-	}
 	var username = req.session.user.username;
 	var title = req.body.title;
 	var content = req.body.content;
+
+	if(!req.session.user)
+	{
+		return res.sendStatus(403);
+	}
+
+	//If the title isn't alphanumeric, slash, underscore or any space /^[a-z0-9]+$/i
+	if(title != title.match(/^[a-z\d\-_\s]+$/i) || title == null)
+	{
+		return res.redirect('back');
+	}
 
 	var newPost = new Post();
 	newPost.username = username;
@@ -270,14 +293,14 @@ router.route('/@:username/:urlTitle')
 				//Checks if there is a user session. If so, it checks if the session user is the same as the post user
 			if(req.session.user)
 			{
-				console.log('logged in');
+				loggedIn = true;
 				if(req.session.user.username == req.params.username)
 				{
 					console.log('same user');
-					return res.render('post', {sameUser: true, username: post.username, urlTitle: post.urlTitle, content: post.content, title: post.title, postTime: post.timeString, name: user.firstname + " " + user.lastname});
+					return res.render('post', {loggedIn: loggedIn, sameUser: true, username: post.username, urlTitle: post.urlTitle, content: post.content, title: post.title, postTime: post.timeString, name: user.firstname + " " + user.lastname});
 				}
 			}
-			return res.render('post', {sameUser: false, username: post.username, urlTitle: post.title, content: post.content, title: post.title, postTime: post.timeString, name: user.firstname + " " + user.lastname});
+			return res.render('post', {loggedIn: loggedIn, sameUser: false, username: post.username, urlTitle: post.title, content: post.content, title: post.title, postTime: post.timeString, name: user.firstname + " " + user.lastname});
 			});
 		});
 	});
@@ -309,7 +332,6 @@ router.route('/post/:urlTitle')
 					{
 						return res.send(err)
 					}
-					console.log('Deleted');
 					return res.redirect('/@' + username);
 				});
 			}
@@ -347,7 +369,13 @@ router.route('/edit/:urlTitle')
 				title = req.body.title;
 				urlTitle = title.replace(/ /g,"_").toLowerCase();
 				content = req.body.content;
-				console.log(post)
+				console.log(post);
+
+				if(title != title.match(/^[a-z\d\-_\s]+$/i) || title == null)
+				{
+					return res.redirect('back');
+				}
+
 				post.update({title: title, content: content, urlTitle: urlTitle}, function(err)
 				{
 					if(err)

@@ -14,11 +14,9 @@ var postSchema = new Schema(
 postSchema.pre('save', function(next)
 {
 	var post = this;
-
 	var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 	var date = new Date();
 	post.createdAt = date;
-
 	post.timeString = months[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear();
 
 	if(!post.isModified('title'))
