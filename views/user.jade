@@ -7,10 +7,17 @@ block content
 	p They have been a member since #{date}
 	if loggedIn
 		if !sameUser
-			if !alreadyFollowing
-				div.follow
-					form(action="/@#{username}", method="post", value="follow")
-						button Follow
+			div
+				if !alreadyFollowing
+					form(action="/@#{username}", method="post")
+						//button(name="follow") Follow
+						//button(name="unfollow") Unfollow
+						input(type="submit", value="follow", name="follow")
+				//- if alreadyFollowing
+				//- 	form(action="/@#{username}", method="post")
+				//- 		//button(name="follow") Follow
+				//- 		//button(name="unfollow") Unfollow
+				//- 		input(type="submit", value="unfollow", name="unfollow")
 		if alreadyFollowing
 			p 
 				b Already Following

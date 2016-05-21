@@ -138,6 +138,7 @@ router.route('/@:username')
 				return res.status(404).send();
 
 			var sameUser = false;
+			var empty = false;
 			var alreadyFollowing = false;
 
 			//Creates loggedIn to be true, allowing you to follow people
@@ -148,13 +149,13 @@ router.route('/@:username')
 				{
 					sameUser = true;
 				}
-			}
 
-			for (var i = 0; i < user.followers.length; i++)
-			{
-				if(user.followers[i] == req.session.user.username)
+				for (var i = 0; i < user.followers.length; i++)
 				{
-					alreadyFollowing = true;
+					if(user.followers[i] == req.session.user.username)
+					{
+						alreadyFollowing = true;
+					}
 				}
 			}
 
@@ -169,6 +170,8 @@ router.route('/@:username')
 
 	.post(function(req, res)
 	{
+		console.log(req.body)
+
 		var followers = [];
 		User.findOne({username: req.params.username}, function(err, user)
 		{
@@ -188,7 +191,7 @@ router.route('/@:username')
 
 			if(req.session.user.username == user.username || alreadyFollowing)
 			{
-				return res.send(403);
+				return res.sendStatus(403);
 			} else
 			{
 				user.save(function(err)
@@ -248,7 +251,7 @@ router.post('/create', function(req, res)
 		console.log('Post created');
 		console.log(newPost);
 
-		return res.redirect(newPost.username + '/' + newPost.urlTitle)
+		return res.redirect('/@' + newPost.username + '/' + newPost.urlTitle)
 	});
 });
 
@@ -308,7 +311,7 @@ router.route('/post/:urlTitle')
 						return res.send(err)
 					}
 					console.log('Deleted');
-					return res.redirect('/' + username);
+					return res.redirect('/@' + username);
 				});
 			}
 		});
@@ -352,7 +355,7 @@ router.route('/edit/:urlTitle')
 						return res.send(err);
 				});
 				console.log("Edited");
-				res.redirect(post.username + '/' + urlTitle);
+				res.redirect('/@' + post.username + '/' + urlTitle);
 			}
 		});
 	});
