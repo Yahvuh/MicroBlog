@@ -5,10 +5,24 @@ block content
 	
 	p Welcome to #{name}'s homepage
 	p They have been a member since #{date}
-	if notEmpty
+	if loggedIn
+		if !sameUser
+			if !alreadyFollowing
+				div.follow
+					form(action="/@#{username}", method="post", value="follow")
+						button Follow
+		if alreadyFollowing
+			p 
+				b Already Following
+
+		//button.blockButton Block
+	p Followers: #{followers}
+	p Following: 	
+	if empty
+		h3 #{name} hasn't posted anything yet.
+	else
 		h3 All of #{name}'s posts
 			each post in blogPosts
 				div.post
 					include ./includes/post.jade
-	else
-		h3 #{name} hasn't posted anything yet.
+	

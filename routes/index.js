@@ -115,41 +115,92 @@ router.route('/register')
 		});
 	});
 
-router.get('/@:username', function(req, res)
-{
-	//Create an array of blogposts.
-	//Then, find all posts by the requests user, and push them into the array
-	var blogPosts = [];
-
-	Post.find({username: req.params.username}, function(err, posts)
+router.route('/@:username')
+	.get(function(req, res)
 	{
-		for(i=0;i<posts.length;i++)
-		{
-			blogPosts.push(posts[i]);
-		}
-	});
+		//Create an array of blogposts.
+		//Then, find all posts by the requests user, and push them into the array
+		var blogPosts = [];
+		var loggedIn = false;
 
-	//Actually find the user in question, send data to Jade to template
-	User.findOne({username: req.params.username}, function(err, user)
+		Post.find({username: req.params.username}, function(err, posts)
+		{
+			for(i=0;i<posts.length;i++)
+			{
+				blogPosts.push(posts[i]);
+			}
+		});
+
+		//Actually find the user in question, send data to Jade to template
+		User.findOne({username: req.params.username}, function(err, user)
+		{
+			if(err || user == null)
+				return res.status(404).send();
+
+			var sameUser = false;
+			var alreadyFollowing = false;
+
+			//Creates loggedIn to be true, allowing you to follow people
+			if(req.session.user)
+			{
+				loggedIn = true;
+				if(req.session.user.username == req.params.username)
+				{
+					sameUser = true;
+				}
+			}
+
+			for (var i = 0; i < user.followers.length; i++)
+			{
+				if(user.followers[i] == req.session.user.username)
+				{
+					alreadyFollowing = true;
+				}
+			}
+
+			//If there are no posts on their profile, return a different statement
+			if(blogPosts.length == 0)
+			{
+				empty = true;
+			}
+			return res.render("user", {alreadyFollowing: alreadyFollowing, sameUser: sameUser, followers: user.followers, loggedIn: loggedIn, empty: empty, username: user.username, name: user.firstname + ' ' + user.lastname, blogPosts: blogPosts, date: user.timeString});
+		});
+	})
+
+	.post(function(req, res)
 	{
-		if(err)
+		var followers = [];
+		User.findOne({username: req.params.username}, function(err, user)
 		{
-			return res.status(404).send()
-		}
-		if(user == null)
-		{
-			console.log('Not Found');
-			return res.status(404).send({message: 'Not Found'});
-		}
+			if(err || !req.session.user)
+				return res.status(404).send();
 
-		if(blogPosts.length == 0)
-		{
-			return res.render("user", {notEmpty: false, username: user.username, name: user.firstname + ' ' + user.lastname, blogPosts: blogPosts, date: user.timeString});
-		}
+			followers = user.followers;
+			user.followers.push(req.session.user.username);
 
-		return res.render("user", {notEmpty: true, username: user.username, name: user.firstname + ' ' + user.lastname, blogPosts: blogPosts, date: user.timeString});
+			for (var i = 0; i < user.followers.length; i++)
+			{
+				if(user.followers[i] == req.session.user.username)
+				{
+					alreadyFollowing = true;
+				}
+			}
+
+			if(req.session.user.username == user.username || alreadyFollowing)
+			{
+				return res.send(403);
+			} else
+			{
+				user.save(function(err)
+				{
+					if(err)
+						return res.send(err)
+
+						res.redirect('/@' + req.params.username);
+				});
+			}
+		});
 	});
-});
 
 router.get('/users', function(req, res)
 {
@@ -226,8 +277,6 @@ router.route('/@:username/:urlTitle')
 			}
 			return res.render('post', {sameUser: false, username: post.username, urlTitle: post.title, content: post.content, title: post.title, postTime: post.timeString, name: user.firstname + " " + user.lastname});
 			});
-
-			
 		});
 	});
 

@@ -5,12 +5,22 @@ var bcrypt = require('bcryptjs'),
 
 var userSchema = new Schema(
 {
+	/*
+		name:
+		{
+			first: {type: String: required: true},
+			last: {type: String: required: true}
+		}
+	*/
+
 	firstname: String,
 	lastname: String,
 	username: {type: String, index: {unique: true}},
 	password: String,
 	createdAt: {type: Date, default: Date.now},
-	timeString: String
+	timeString: String,
+	following: [],
+	followers: []
 });
 
 userSchema.pre('save', function(next)
@@ -19,11 +29,7 @@ userSchema.pre('save', function(next)
 	var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 	var date = new Date();
 	user.createdAt = new Date();
-
 	user.timeString = months[date.getMonth()] + " " + date.getDate() + " " + date.getFullYear() + " at " + date.getHours() + ":" + ("0" + date.getMinutes()).slice(-2);
-
-	console.log(user.createdAt);
-	console.log(user.timeString);
 
 	if(!user.isModified('password'))
 	{
