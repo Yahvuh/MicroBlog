@@ -49,12 +49,10 @@ router.route('/login')
 					{
 						console.log('Logged In');
 						req.session.user = user;
-						//return res.status(200).send();
 						res.redirect('/dashboard')
 					}
 					else
 					{
-
 						return res.status(401).send();
 					}
 				});
@@ -150,14 +148,18 @@ router.route('/@:username')
 					sameUser = true;
 				}
 
-				for (var i = 0; i < user.followers.length; i++)
+				if(user.followers.length != null)
 				{
-					if(user.followers[i] == req.session.user.username)
+					for (var i = 0; i < user.followers.length; i++)
 					{
-						alreadyFollowing = true;
+						if(user.followers[i] == req.session.user.username)
+						{
+							alreadyFollowing = true;
+						}
 					}
 				}
 			}
+			//WHAAAA NESTING LOLOL
 
 			//If there are no posts on their profile, return a different statement
 			if(blogPosts.length == 0)
@@ -170,18 +172,14 @@ router.route('/@:username')
 
 	.post(function(req, res)
 	{
-		console.log(req.body)
-
-		var followers = [];
 		User.findOne({username: req.params.username}, function(err, user)
 		{
+			var alreadyFollowing = false;
+
 			if(err || !req.session.user)
 				return res.status(404).send();
 
-			followers = user.followers;
-			user.followers.push(req.session.user.username);
-
-			for (var i = 0; i < user.followers.length; i++)
+			for(var i = 0; i < user.followers.length; i++)
 			{
 				if(user.followers[i] == req.session.user.username)
 				{
@@ -194,12 +192,13 @@ router.route('/@:username')
 				return res.sendStatus(403);
 			} else
 			{
+				user.followers.push(req.session.user.username);
 				user.save(function(err)
 				{
 					if(err)
 						return res.send(err)
 
-						res.redirect('/@' + req.params.username);
+					res.redirect('/@' + req.params.username);
 				});
 			}
 		});
