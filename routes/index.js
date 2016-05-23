@@ -8,7 +8,7 @@ var login = require('../middlewares/login');
 router.get('/', function(req, res, next)
 {
 	if(!req.session.user)
-		return res.render('index', { title: 'MicroBlog' });
+		return res.render('index', { loggedIn: loggedIn(req, res), title: 'MicroBlog' });
 
 	return res.redirect('/dashboard');
 });
@@ -134,7 +134,7 @@ router.route('/@:username')
 			if(blogPosts.length == 0)
 				empty = true;
 
-			return res.render("user", {alreadyFollowing: alreadyFollowing, sameUser: sameUser, followers: user.followers, loggedIn: loggedIn, empty: empty, username: user.username, name: user.firstname + ' ' + user.lastname, blogPosts: blogPosts, date: user.timeString});
+			return res.render("user", {loggedIn: loggedIn(req, res), alreadyFollowing: alreadyFollowing, sameUser: sameUser, followers: user.followers, loggedIn: loggedIn, empty: empty, username: user.username, name: user.firstname + ' ' + user.lastname, blogPosts: blogPosts, date: user.timeString});
 		});
 	})
 
