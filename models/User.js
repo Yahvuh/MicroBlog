@@ -32,9 +32,7 @@ userSchema.pre('save', function(next)
 	user.timeString = months[date.getMonth()] + " " + date.getDate() + " " + date.getFullYear() + " at " + date.getHours() + ":" + ("0" + date.getMinutes()).slice(-2);
 
 	if(!user.isModified('password'))
-	{
 		return next();
-	}
 
 	bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt)
 	{
@@ -58,7 +56,7 @@ userSchema.pre('save', function(next)
 
 userSchema.methods.comparePassword = function(candidatePassword, callback)
 {
-	bcrypt.compare(candidatePassword, this.password, function(err, isMatch)
+	return bcrypt.compare(candidatePassword, this.password, function(err, isMatch)
 	{
 		if(err)
 		{

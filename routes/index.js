@@ -2,16 +2,13 @@ var express = require('express');
 var router = express.Router();
 var User = require('../models/User');
 var Post = require('../models/Post');
-
-var loggedIn;
+var login = require('../middlewares/login');
 
 /* GET home page. */
 router.get('/', function(req, res, next)
 {
 	if(!req.session.user)
-	{
 		return res.render('index', { title: 'MicroBlog' });
-	}
 
 	return res.redirect('/dashboard');
 });
@@ -21,68 +18,33 @@ router.route('/login')
 	.get(function(req, res)
 	{
 		if(req.session.user)
-		{
 			return res.redirect('/dashboard');
-		}
+
 		res.render('login');
 	})
 
-	.post(function(req, res, next)
+	.post(function(req, res)
 	{
-		var username = req.body.username;
-		var password = req.body.password;
-
-		User.findOne({username: username}, function(err, user)
-			{
-				if(err)
-				{
-					return res.status(500).send
-				}
-
-				if(!user)
-				{
-					console.log('No User');
-					return res.status(404).send();
-				}
-
-				user.comparePassword(password, function(err, isMatch)
-				{
-					if(isMatch && isMatch == true)
-					{
-						loggedIn = true;
-						req.session.user = user;
-						res.redirect('/dashboard')
-					}
-					else
-					{
-						return res.status(401).send();
-					}
-				});
-			});
+		const loginPromise = new Promise(function(resolve, reject)
+		{
+			resolve(login(req, res));
+			reject(err);
+		});
 	});
 
 router.get('/dashboard', function(req, res)
 {
 	if(!req.session.user)
-	{
 		return res.redirect('/login');
-
-		//return res.status(401).send()
-	}
-
-	//return res.status(200).send();
-	console.log('Accessed Dashboard');
-	res.render('dashboard', {loggedIn: loggedIn, username: req.session.user.username});
+	res.render('dashboard', {loggedIn: loggedIn(req, res), username: req.session.user.username});
 });
 
 router.get('/logout', function(req, res)
 {
 	if(!req.session.user)
-	{
 		return res.redirect('/login');
-	}
+
 	req.session.destroy();
-	loggedIn = false;
 	//return res.status(200).send();
 	return res.redirect('/');
 });
@@ -118,10 +80,8 @@ router.route('/register')
 		newUser.save(function(err, savedUser)
 		{
 			if(err)
-			{
-				console.log(err);
 				return res.status(500).send();
-			}
+
 			return res.redirect('/login');
 		});
 	});
@@ -151,14 +111,10 @@ router.route('/@:username')
 			var empty = false;
 			var alreadyFollowing = false;
 
-			//Creates loggedIn to be true, allowing you to follow people
 			if(req.session.user)
 			{
-				loggedIn = true;
 				if(req.session.user.username == req.params.username)
-				{
 					sameUser = true;
-				}
 
 				//Ensures followers is not null, and makes sure its large than 0
 				if(user.followers != null && user.followers.length > 0)
@@ -176,15 +132,19 @@ router.route('/@:username')
 
 			//If there are no posts on their profile, return a different statement
 			if(blogPosts.length == 0)
-			{
 				empty = true;
-			}
+
 			return res.render("user", {alreadyFollowing: alreadyFollowing, sameUser: sameUser, followers: user.followers, loggedIn: loggedIn, empty: empty, username: user.username, name: user.firstname + ' ' + user.lastname, blogPosts: blogPosts, date: user.timeString});
 		});
 	})
 
-	.post(function(req, res)
+	.post(function(req, res, err)
 	{
+		if(req.body.followType == 'unfollow')
+		{
+			followType = req.body.followType;
+		//	unfollowUser(followType, req, res, err);
+		}
 		User.findOne({username: req.params.username}, function(err, user)
 		{
 			var alreadyFollowing = false;
@@ -227,14 +187,14 @@ router.get('/users', function(req, res)
 	User.find(function(err, user)
 	{
 		if(err)
-		{
 			return res.send(err);
-		}
+
 		for(i=0;i<user.length;i++)
 		{
 			users.push(user[i].username);
 		}
-		return res.render('allUsers', {loggedIn: loggedIn, userCount: user.length, userList: users});
+
+		return res.render('allUsers', {loggedIn: loggedIn(req, res), userCount: user.length, userList: users});
 	});
 });
 
@@ -246,15 +206,14 @@ router.post('/create', function(req, res)
 	var content = req.body.content;
 
 	if(!req.session.user)
-	{
 		return res.sendStatus(403);
-	}
+
+	if(title.match(/^\s+$/))
+		return res.sendStatus(400);
 
 	//If the title isn't alphanumeric, slash, underscore or any space /^[a-z0-9]+$/i
 	if(title != title.match(/^[a-z\d\-_\s]+$/i) || title == null)
-	{
 		return res.redirect('back');
-	}
 
 	var newPost = new Post();
 	newPost.username = username;
@@ -266,12 +225,7 @@ router.post('/create', function(req, res)
 	newPost.save(function(err, savedPost)
 	{
 		if(err)
-		{
-			console.log(err);
 			return res.status(500).send();
-		}
-		console.log('Post created');
-		console.log(newPost);
 
 		return res.redirect('/@' + newPost.username + '/' + newPost.urlTitle)
 	});
@@ -293,14 +247,12 @@ router.route('/@:username/:urlTitle')
 				//Checks if there is a user session. If so, it checks if the session user is the same as the post user
 			if(req.session.user)
 			{
-				loggedIn = true;
 				if(req.session.user.username == req.params.username)
 				{
-					console.log('same user');
-					return res.render('post', {loggedIn: loggedIn, sameUser: true, username: post.username, urlTitle: post.urlTitle, content: post.content, title: post.title, postTime: post.timeString, name: user.firstname + " " + user.lastname});
+					return res.render('post', {loggedIn: loggedIn(req, res), sameUser: true, username: post.username, urlTitle: post.urlTitle, content: post.content, title: post.title, postTime: post.timeString, name: user.firstname + " " + user.lastname});
 				}
 			}
-			return res.render('post', {loggedIn: loggedIn, sameUser: false, username: post.username, urlTitle: post.title, content: post.content, title: post.title, postTime: post.timeString, name: user.firstname + " " + user.lastname});
+			return res.render('post', {loggedIn: loggedIn(req, res), sameUser: false, username: post.username, urlTitle: post.title, content: post.content, title: post.title, postTime: post.timeString, name: user.firstname + " " + user.lastname});
 			});
 		});
 	});
@@ -342,49 +294,46 @@ router.route('/post/:urlTitle')
 router.route('/edit/:urlTitle')
 	.post(function(req, res)
 	{
-		console.log(req.params)
 		//Without sending 401, users not logged in would crash application
 		if(!req.session.user)
 		{
 			return res.redirect('/login')
 		}
 		oldTitle = req.params.urlTitle.replace(/ /g,"_").toLowerCase();
-		console.log(oldTitle);
 		Post.findOne({urlTitle: oldTitle}, function(err, post)
 		{
 			if(err)
-			{
 				return res.send(err);
-				console.log('error')
-			}
-			console.log('starting check')
+
 			if(req.session.user.username == post.username && oldTitle == post.urlTitle)
 			{
 				if(err)
-				{
 					return res.send(err);
-				}
 
-				console.log('replacing')
 				title = req.body.title;
 				urlTitle = title.replace(/ /g,"_").toLowerCase();
 				content = req.body.content;
-				console.log(post);
 
 				if(title != title.match(/^[a-z\d\-_\s]+$/i) || title == null)
-				{
 					return res.redirect('back');
-				}
 
 				post.update({title: title, content: content, urlTitle: urlTitle}, function(err)
 				{
 					if(err)
 						return res.send(err);
 				});
-				console.log("Edited");
 				res.redirect('/@' + post.username + '/' + urlTitle);
 			}
 		});
 	});
+
+const loggedIn = function(req, res)
+{
+	if(!req.session.user)
+		return false;
+	else
+		return true;
+}
+
 
 module.exports = router;

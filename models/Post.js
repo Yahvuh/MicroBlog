@@ -20,10 +20,8 @@ postSchema.pre('save', function(next)
 	post.timeString = months[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear();
 
 	if(!post.isModified('title'))
-	{
-		console.log('Not Modified');
 		return next();
-	}
+
 	next();
 });
 

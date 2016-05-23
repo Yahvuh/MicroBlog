@@ -12,12 +12,12 @@ block content
 					form(action="/@#{username}", method="post")
 						//button(name="follow") Follow
 						//button(name="unfollow") Unfollow
-						input(type="submit", value="follow", name="follow")
-				//- if alreadyFollowing
-				//- 	form(action="/@#{username}", method="post")
-				//- 		//button(name="follow") Follow
-				//- 		//button(name="unfollow") Unfollow
-				//- 		input(type="submit", value="unfollow", name="unfollow")
+						input(type="submit", value="follow", name="followType")
+				if alreadyFollowing
+					form(action="/@#{username}", method="post")
+						//button(name="follow") Follow
+						//button(name="unfollow") Unfollow
+						input(type="submit", value="unfollow", name="followType")
 		if alreadyFollowing
 			p 
 				b Already Following
