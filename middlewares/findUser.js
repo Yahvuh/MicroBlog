@@ -3,23 +3,21 @@ var User = require('../models/User');
 
 var findUser = function(req, res, matchPassword)
 {
-  username = req.body.username;
-  password = req.body.password;
-  return User.findOne({username: username}, function(err, user, password)
+  User.findOne({username: req.body.username}, function(err, user)
   {
-    if(!user)
-      //throw new Error('Could not find user ' + username);
-      res.sendStatus(401)
+    if(!user) res.sendStatus(401);
 
     if(matchPassword && user)
-      compare(user, password, req, res);
+      compare(user, req, res)
   });
 }
 
-var compare = function(user, password, req, res)
+var compare = function(user, req, res, err)
 {
-  return user.comparePassword(password, function(isMatch)
+  password = req.body.password;
+  user.comparePassword(password, function(err, isMatch)
   {
+    if (err) throw err;
   	if(isMatch)
   	{
   		loggedIn = true;
