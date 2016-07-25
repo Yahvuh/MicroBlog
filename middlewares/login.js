@@ -1,14 +1,12 @@
-var express = require('express');
-var findUser = require('./findUser');
-var User = require('../models/User');
+'use strict';
 
-var login = function(req, res)
-{
-  const findUserPromise = new Promise(function(resolve, reject)
-  {
-    resolve(findUser(req, res, matchPassword = true));
-    reject(err);
-  });
+const findUser = require('./findUser');
+
+const login = function(req, res) {
+  //MatchPassword is just telling the server that it is a login request.
+  //Otherwise, the default FindUser module will just search for a user and return them
+  let matchPassword = true;
+  findUser(req, res, matchPassword);
 };
 
 module.exports = login;

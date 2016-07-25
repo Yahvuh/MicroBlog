@@ -4,12 +4,11 @@ nav
       a(href="/dashboard") Dashboard
     li 
       a(href="/users") Users
-    if loggedIn
-      li 
-        a(href="/logout") Logout
     if !loggedIn
       li 
         a(href="/login") Login
       li 
         a(href="/register") Register
-      
+    if loggedIn
+      li 
+        a(href="/logout") Logout
