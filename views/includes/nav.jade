@@ -6,9 +6,8 @@ nav
       a(href="/users") Users
     if !loggedIn
       li 
-        a(href="/login") Login
-      li 
-        a(href="/register") Register
+        a(href="/auth/twitter") 
+          img(src="https://g.twimg.com/dev/sites/default/files/images_documentation/sign-in-with-twitter-gray.png")
     if loggedIn
       li 
         a(href="/logout") Logout
