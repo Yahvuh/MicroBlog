@@ -2,20 +2,18 @@
 
 const express = require('express');
 const path = require('path');
-const favicon = require('serve-favicon');
+//const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const passport = require('passport');
 
 const app = express();
 
-
-//const admin = require('./routes/admin');
-
 // database setup
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/test')
+mongoose.connect('mongodb://localhost/microblog');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -30,17 +28,20 @@ app.use(cookieParser());
 
 //Don't actually use secret in production.
 //Use envirionment variable or something
-app.use(session(
-  {
-    secret: "MicroBlog",
-    resave: false,
-    saveUninitialized: true
-  }));
+app.use(session({
+  secret: "MicroBlog",
+  resave: false,
+  saveUninitialized: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 const routes = require('./routes/index');
+const api = require('./routes/api');
 app.use('/', routes);
-//app.use('/admin', admin);
+app.use('/api', api);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
