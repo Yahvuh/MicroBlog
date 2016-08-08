@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  h1 User #{user.handle} profile
+  p #{user.name}
+  if sameUser
+    a(href="/edit") Edit Profile

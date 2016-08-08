@@ -6,6 +6,7 @@ const TwitterStrategy = require('passport-twitter').Strategy;
 const User = require('../models/User');
 const config = require('../_config');
 const init = require('./init');
+const genHandle = require('../middleware/genHandle');
 
 passport.use(new TwitterStrategy({
   consumerKey: config.twitter.consumerKey,
@@ -21,10 +22,11 @@ passport.use(new TwitterStrategy({
         if(user) {
           return done(null, user);
         } else {
-          let newUser = new User();
+          let newUser    = new User();
           newUser.userID = profile.id;
-          newUser.token  = token;
+          //newUser.token  = token;
           newUser.name   = profile.username;
+          newUser.handle = genHandle();
           newUser.save(function(err) {
             if(err)
               throw err;

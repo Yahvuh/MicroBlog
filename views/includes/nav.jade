@@ -1,9 +1,5 @@
 nav
   ul.center
-    li 
-      a(href="/dashboard") Dashboard
-    li 
-      a(href="/users") Users
     if !loggedIn
       li 
         a(href="/auth/twitter") 
@@ -11,3 +7,7 @@ nav
     if loggedIn
       li 
         a(href="/logout") Logout
+      li 
+        span | 
+      li
+        a(href="/@#{user.handle}") Profile

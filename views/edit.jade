@@ -1,0 +1,11 @@
+extends layout
+
+block content
+  h1 Edit profile
+  b Names and handles can only be alphanumeric
+  form(method="post", action="/api/profile")
+    input(type="text", name="name", placeholder="#{user.name}")
+    br
+    input(type="text", name="handle", placeholder="#{user.handle}")
+    br
+    button(type="submit") Edit

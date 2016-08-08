@@ -8,25 +8,21 @@ const passportTwitter = require('../auth/twitter');
 // auth
 router.get('/auth/twitter', passportTwitter.authenticate('twitter'));
 router.get('/auth/twitter/callback', passportTwitter.authenticate('twitter', {
-	successRedirect: '/profile',
+	successRedirect: '/',
 	failiureRedirect: '/'
 }));
 
 /* GET home page. */
 router.get('/', function(req, res) {
-	return res.render('index', { loggedIn: loggedIn(req) });
+	return res.render('index', { loggedIn: loggedIn(req), user: req.user });
 });
 
-router.get('/profile', function(req, res) {
+router.get('/edit', function(req, res) {
 	if(!req.user) {
 		return res.redirect('/');
 	}
-	User.findOne({ '_id': req.session.passport.user}, function(err, user) {
-		console.log('User logged in: \n' + user);
-		req.user = user;
-	});
 
-	return res.render('profile', { loggedIn: loggedIn(req), user: req.user });
+	return res.render('edit', { loggedIn: loggedIn(req), user: req.user });
 });
 
 router.get('/logout', function(req, res) {
@@ -38,10 +34,27 @@ router.get('/logout', function(req, res) {
 	res.redirect('/');
 });
 
+router.get('/@:handle', function(req, res) {
+	User.findOne({ 'handle': req.params.handle }, function(err, user) {
+		if(err)
+			console.error(err);
+
+		return res.render('user', { user: user, loggedIn: loggedIn(req), sameUser: sameUser(req, user) });
+	});
+});
+
 const loggedIn = function(req) {
 	if(!req.user) {
 		return false;
 	}	else {
+		return true;
+	}
+};
+
+const sameUser = function(req, user) {
+	if(!req.user) {
+		return false;
+	} else if (req.user.handle === user.handle) {
 		return true;
 	}
 };
