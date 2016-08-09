@@ -3,8 +3,9 @@
 const express = require('express');
 const router = express.Router();
 const passportTwitter = require('../auth/twitter');
-const User = require('../models/User');
 const Post = require('../models/Post');
+const findUser = require('../middleware/findUser');
+const findPosts = require('../middleware/findPosts');
 
 // auth
 router.get('/auth/twitter', passportTwitter.authenticate('twitter'));
@@ -36,32 +37,23 @@ router.get('/logout', function(req, res) {
 });
 
 router.get('/@:handle', function(req, res) {
-	User.findOne({ handle: req.params.handle }, function(err, user) {
-		if(err)
-			console.error(err);
-
-		Post.find({ userID: user.userID }, function(err, posts) {
-			if(err)
-				console.error(err);
-			let userPosts = [];
-			for(let i=0; i<posts.length; i++) {
-				userPosts.push(posts[i]);
-				//console.log(posts)
-			}
-			//Check if the user has posted anything
+	// apparently the only way to get users and posts in the same promise
+	findUser(req.params.handle).then(function(user) {
+		findPosts(user).then(function(posts) {
 			let empty = false;
-			if(userPosts.length === 0) {
+			if(posts.length === 0) {
 				empty = true;
 			}
-			return res.render('user', { empty: empty, user: user, loggedIn: loggedIn(req), sameUser: sameUser(req, user), userPosts: userPosts });
+			return res.render('user', { user: user, userPosts: posts, loggedIn: loggedIn(req), sameUser: sameUser(req, user), empty: empty });
 		});
+	}).catch(function(err) {
+		console.error(err);
 	});
 });
 
 router.get('/@:handle/:postID', function(req, res) {
-	User.findOne({ handle: req.params.handle}, function(err, user) {
-		if(err)
-			console.error(err);
+	findUser(req.params.handle).then(function(user) {
+		// Not using findPosts here, because I only need one result
 		Post.findOne({ postID: req.params.postID}, function(err, post) {
 			if(err)
 				console.error(err);
