@@ -1,4 +1,15 @@
-a(href="/@#{post.username}/#{post.urlTitle}")
-  h1 #{post.title} by #{post.username}
+a(href="/@#{user.handle}/#{post.postID}")
+  h1 #{post.title} by #{user.handle}
 p #{post.content}
-p #{post.timeString}
+
+if sameUser
+  form(method="post", action="/api/edit/#{post.postID}")
+    label(for="title") Title: 
+    input(type="text", name="title", required)
+    br
+    label(for="content") Description: 
+    textarea(name="content")
+    br
+    button(type="submit") Edit
+  form(method="post", action="/api/post/#{post.postID}")
+    button(type="submit") Delete

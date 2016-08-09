@@ -1,7 +1,16 @@
 extends layout
 
 block content
-  h1 User #{user.handle} profile
-  p #{user.name}
-  if sameUser
-    a(href="/edit") Edit Profile
+  div#info
+    h1 User #{user.handle} profile
+    p #{user.name}
+    p #{user.description}
+    if sameUser
+      a(href="/edit") Edit Profile
+  div#userPosts
+    h2 Posts
+      if empty
+        p This user has not posted anything
+      each post in userPosts
+        div.post
+          include ./includes/post.jade

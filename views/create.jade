@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  h1 Create post
+  b Title can only be alphanumeric
+  form(method="post", action="/api/post")
+    label(for="title") Title: 
+    input(type="text", name="title", required)
+    br
+    label(for="content") Description: 
+    textarea(name="content")
+    br
+    button(type="submit") Create
