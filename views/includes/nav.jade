@@ -8,6 +8,8 @@ nav
       li
         a(href="/create") Post
       li
+        // TODO: when viewing someone elses profile, this link won't take you to your profile
+        //It will only take it to theirs, due to what user.hanmdle is
         a(href="/@#{user.handle}") Profile
       li
         a(href="/logout") Logout

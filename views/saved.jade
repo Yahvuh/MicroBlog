@@ -1,0 +1,9 @@
+extends layout
+
+block content
+
+  div
+    h1 Hi #{user.name}
+    each post in user.savedPosts
+      div.post
+        include ./includes/post.jade

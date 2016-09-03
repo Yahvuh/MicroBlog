@@ -5,6 +5,8 @@ const router = express.Router();
 const User = require('../models/User');
 const Post = require('../models/Post');
 const genPID = require('../middleware/genPID');
+const checkDb = require('../middleware/checkDb');
+const findUser = require('../middleware/findUser');
 
 // /api routing
 router.post('/profile', function(req, res, done) {
@@ -89,6 +91,7 @@ router.post('/post/:postID', function(req, res) {
   });
 });
 
+// TODO: Make sure original author can only edit the post
 router.post('/edit/:postID', function(req, res) {
   if(!req.user)
     return res.sendStatus(401);
@@ -109,6 +112,32 @@ router.post('/edit/:postID', function(req, res) {
       return res.redirect('/@' + req.user.handle + '/' + post.postID);
     }
   });
+});
+
+router.post('/save/:postID', function(req, res, done) {
+  if(!req.user)
+    return res.sendStatus(401);
+
+  Post.findOne({ postID: req.params.postID }, function(err, post) {
+    if(err) console.error(err);
+    User.findOne({ userID: req.user.userID }, function(err, user) {
+      if(err) console.error(err);
+      if(checkDb(user, post) === true) {
+        console.error('Duplicate Found');
+      } else {
+        console.log('ALL GOOD');
+        let savedPosts = user.savedPosts;
+        savedPosts.push(post);
+        user.save(function(err) {
+          if(err) console.error(err);
+
+          console.log('Updated user successfully');
+          return done(null, user);
+        });
+      }
+    });
+  });
+  return res.redirect('/');
 });
 
 module.exports = router;

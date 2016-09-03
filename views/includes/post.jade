@@ -13,3 +13,6 @@ if sameUser
     button(type="submit") Edit
   form(method="post", action="/api/post/#{post.postID}")
     button(type="submit") Delete
+if loggedIn
+  form(method="post", action="/api/save/#{post.postID}")
+    button(type="submit") Save
