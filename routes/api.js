@@ -44,7 +44,6 @@ router.post('/post', function(req, res, done) {
   if(!req.user) {
     return res.sendStatus(401);
   }
-  console.log(req.body);
 
   //the usual
   // TODO: let symbols in (!, @, #, $ etc)
@@ -124,6 +123,7 @@ router.post('/save/:postID', function(req, res, done) {
       if(err) console.error(err);
       if(checkDb(user, post) === true) {
         console.error('Duplicate Found');
+        return done(null);
       } else {
         console.log('ALL GOOD');
         let savedPosts = user.savedPosts;
@@ -131,12 +131,36 @@ router.post('/save/:postID', function(req, res, done) {
         user.save(function(err) {
           if(err) console.error(err);
 
-          console.log('Updated user successfully');
+          console.log('Saved a post');
           return done(null, user);
         });
       }
     });
   });
+  return res.redirect('/');
+});
+
+// delete a saved post
+router.post('/unsave/:postID', function(req, res, done) {
+  if(!req.user)
+    return res.sendStatus(401);
+
+  // duplicate the users savedPosts array
+  let savedPosts = req.user.savedPosts;
+  for(let i=0; i < req.user.savedPosts.length; i++) {
+    if(req.params.postID === req.user.savedPosts[i].postID) {
+      // once its found a saved post that matches the reqeusted post...
+      // it splices the array, removing the post that was requested to be removed
+      console.log('Found saved post');
+      savedPosts.splice(i, 1);
+    }
+  }
+
+  // then pushes it through mongoose, and updates the document
+  User.findOneAndUpdate({ userID: req.user.userID }, { savedPosts: savedPosts }, { new: true }, function(err, user) {
+    if(err) console.error(err);
+  });
+
   return res.redirect('/');
 });
 

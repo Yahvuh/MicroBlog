@@ -24,6 +24,10 @@ const sameUser = function(req, user) {
 	}
 };
 
+const saved = function(req) {
+
+};
+
 // auth
 router.get('/auth/twitter', passportTwitter.authenticate('twitter'));
 router.get('/auth/twitter/callback', passportTwitter.authenticate('twitter', {
@@ -55,7 +59,6 @@ router.get('/logout', function(req, res) {
 
 router.get('/@:handle', function(req, res) {
 	// apparently the only way to get users and posts in the same promise
-	console.log(req.user);
 	findUser(req.params.handle).then(function(user) {
 		findPosts(user).then(function(posts) {
 			let empty = false;
@@ -98,7 +101,7 @@ router.get('/saved', function(req, res) {
 	if(!req.user)
 		return res.redirect('/');
 
-	return res.render('saved', { loggedIn: loggedIn(req), user: req.user});
+	return res.render('saved', { loggedIn: loggedIn(req), user: req.user, saved: saved(req)});
 });
 
 module.exports = router;

@@ -5,14 +5,34 @@ p #{post.content}
 if sameUser
   form(method="post", action="/api/edit/#{post.postID}")
     label(for="title") Title: 
-    input(type="text", name="title", required)
+    input(type="text", name="title", placeholder="#{post.title}", required, value="#{post.title}")
     br
     label(for="content") Description: 
-    textarea(name="content")
+    textarea(name="content", placeholder="#{post.content}") #{post.content}
     br
     button(type="submit") Edit
   form(method="post", action="/api/post/#{post.postID}")
     button(type="submit") Delete
+
+// only render the save button if the user is logged in
+// TODO: maybe switch this to a server side setting instead of client side?
+
+// declare the saved var as false, and only change it if a post is already saved
+// all client javascript
+// if saved, show the unsave button. Vice versa
+
 if loggedIn
-  form(method="post", action="/api/save/#{post.postID}")
-    button(type="submit") Save
+  - var saved = false
+  - for(var i=0;i<user.savedPosts.length; i++) {
+    - if(post.postID === user.savedPosts[i].postID) {
+      - saved = true
+    - } 
+  - }
+
+  if saved
+    h2 #{post.postID}
+    form(method="post", action="/api/unsave/#{post.postID}")
+      button(type="submit") Unsave
+  else
+    form(method="post", action="/api/save/#{post.postID}")
+      button(type="submit") Save
