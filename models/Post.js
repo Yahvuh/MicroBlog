@@ -7,7 +7,12 @@ const Post = new Schema({
   userID: String,
   postID: {type: String, index: {unique: true}},
   title: { type: String, required: true},
-  content: String
+  content: String,
+  comments: [{
+    userID: String,
+    handle: String,
+    comment: String
+  }]
 },
 {
   timestamps: true

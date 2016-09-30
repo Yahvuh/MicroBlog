@@ -6,7 +6,7 @@ const User = require('../models/User');
 const Post = require('../models/Post');
 const genPID = require('../middleware/genPID');
 const checkDb = require('../middleware/checkDb');
-const findUser = require('../middleware/findUser');
+//const findUser = require('../middleware/findUser');
 
 // /api routing
 router.post('/profile', function(req, res, done) {
@@ -141,7 +141,7 @@ router.post('/save/:postID', function(req, res, done) {
 });
 
 // delete a saved post
-router.post('/unsave/:postID', function(req, res, done) {
+router.post('/unsave/:postID', function(req, res) {
   if(!req.user)
     return res.sendStatus(401);
 
@@ -157,11 +157,88 @@ router.post('/unsave/:postID', function(req, res, done) {
   }
 
   // then pushes it through mongoose, and updates the document
-  User.findOneAndUpdate({ userID: req.user.userID }, { savedPosts: savedPosts }, { new: true }, function(err, user) {
+  User.findOneAndUpdate({ userID: req.user.userID }, { savedPosts: savedPosts }, { new: true }, function(err) {
     if(err) console.error(err);
   });
 
   return res.redirect('/');
+});
+
+router.post('/comment/:postID', function(req, res, done) {
+  if(!req.user)
+    return res.sendStatus(401);
+
+  Post.findOne({ postID: req.params.postID }, function(err, post) {
+    if(err) console.error(err);
+
+    post.comments.push({
+      userID: req.user.userID,
+      handle: req.user.handle,
+      comment: req.body.comment
+    });
+
+    post.save(function(err) {
+      if(err) console.error(err);
+
+      console.log('Posted comment');
+      return done(null, post);
+    });
+
+    return res.redirect('/@' + req.user.handle + '/' + req.params.postID);
+  });
+});
+
+// deletes a comment from an individual post
+router.post('/uncomment/:postID/:commentID', function(req, res) {
+  if(!req.user)
+    return res.sendStatus(401);
+
+  Post.findOne({ postID: req.params.postID}, function(err, post) {
+    let comments = post.comments;
+    for(let i=0; i<comments.length; i++) {
+      //TODO: type conversion???
+      if(req.params.commentID == comments[i]._id && req.user.userID == comments[i].userID) {
+        console.log(' SAME POST');
+        comments.splice(i, 1);
+      }
+    }
+
+    post.update({ comments: comments }, function(err) {
+      if(err) console.error(err);
+      console.log('Comment deleted');
+    });
+
+    return res.redirect('/@' + req.user.handle + '/' + req.params.postID);
+  });
+});
+
+router.post('/edit/:postID/:commentID', function(req, res) {
+  if(!req.user)
+    return res.sendStatus(401);
+
+  Post.findOne({ postID: req.params.postID }, function(err, post) {
+    if(err) console.error(err);
+
+    let comments = post.comments;
+    for(let i=0; i<comments.length; i++) {
+      // TODO: DO THE TYPE CONVSERSION
+      if(req.params.commentID == comments[i]._id && req.user.userID == comments[i].userID) {
+        post.comments[i] = {
+          userID: req.user.userID,
+          handle: req.user.handle,
+          comment: req.body.comment
+        };
+
+        post.save(function(err) {
+          if(err) console.error(err);
+
+          console.log('Post edited');
+        });
+      }
+    }
+
+    return res.redirect('/@' + req.user.handle + '/' + req.params.postID);
+  });
 });
 
 module.exports = router;

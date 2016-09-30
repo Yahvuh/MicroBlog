@@ -30,9 +30,30 @@ if loggedIn
   - }
 
   if saved
-    h2 #{post.postID}
     form(method="post", action="/api/unsave/#{post.postID}")
       button(type="submit") Unsave
   else
     form(method="post", action="/api/save/#{post.postID}")
       button(type="submit") Save
+
+  form(method="post", action="/api/comment/#{post.postID}")
+    label(for="comment") Comment
+    br
+    textarea(name="comment")
+    br
+    button(type="submit") Comment
+
+h3 Comments for this post
+each comment in post.comments
+  div.border
+    a(href="/@#{comment.handle}") #{comment.handle}
+    p #{comment.comment}
+    if sameUser
+      form(method="post", action="/api/uncomment/#{post.postID}/#{comment._id}")
+        button(type="submit") Remove
+      form(method="post", action="/api/edit/#{post.postID}/#{comment._id}")
+        label(for="comment") Edit comment
+        br
+        textarea(name="comment")
+        br
+        button(type="submit") Edit
