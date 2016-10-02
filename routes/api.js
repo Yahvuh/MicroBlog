@@ -6,7 +6,20 @@ const User = require('../models/User');
 const Post = require('../models/Post');
 const genPID = require('../middleware/genPID');
 const checkDb = require('../middleware/checkDb');
-//const findUser = require('../middleware/findUser');
+const fs = require('fs');
+
+// Multer setup
+const multer = require('multer');
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, 'public/uploads/');
+  },
+  filename: function(req, file, cb) {
+    let fileType = file.mimetype.split('/');
+    cb(null, Date.now() + '.' + fileType[fileType.length - 1]);
+  }
+});
+const upload = multer({ storage: storage });
 
 // /api routing
 router.post('/profile', function(req, res, done) {
@@ -40,28 +53,26 @@ router.post('/profile', function(req, res, done) {
   return res.redirect('/@' + req.body.handle);
 });
 
-router.post('/post', function(req, res, done) {
+router.post('/post', upload.single('image'), function(req, res) {
   if(!req.user) {
     return res.sendStatus(401);
   }
-
-  //the usual
-  // TODO: let symbols in (!, @, #, $ etc)
-  // if(!req.body.title.match(/^([0-9]|[a-z])+([0-9a-z]+)$/i)) {
-  //   return res.sendStatus(400);
-  // }
 
   let newPost = new Post();
   newPost.title = req.body.title;
   newPost.content = req.body.content;
   newPost.postID = genPID();
   newPost.userID = req.user.userID;
+  if(req.file) {
+    newPost.image = req.file.filename;
+  }
+
   newPost.save(function(err) {
     if(err)
       throw err;
 
     console.log('Successfully created a post');
-    return done(null, newPost);
+    //done(null);
   });
 
   return res.redirect('/@' + req.user.handle);
@@ -78,9 +89,9 @@ router.post('/post/:postID', function(req, res) {
       console.error(err);
 
     if(req.user.userID === post.userID && req.params.postID === post.postID) {
-      Post.remove({
-        postID: req.params.postID
-      }, function(err, post) {
+      if(post.image)
+        fs.unlink('public/uploads/' + post.image);
+      Post.remove({ postID: req.params.postID }, function(err, post) {
         if(err)
           console.error(err);
         console.log('Post deleted: ' + post);
@@ -91,6 +102,7 @@ router.post('/post/:postID', function(req, res) {
 });
 
 // TODO: Make sure original author can only edit the post
+// TODO: Allow users to edit images after post (even if they didn't include images in the first post)
 router.post('/edit/:postID', function(req, res) {
   if(!req.user)
     return res.sendStatus(401);

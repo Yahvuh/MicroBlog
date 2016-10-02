@@ -8,6 +8,7 @@ const Post = new Schema({
   postID: {type: String, index: {unique: true}},
   title: { type: String, required: true},
   content: String,
+  image: String,
   comments: [{
     userID: String,
     handle: String,

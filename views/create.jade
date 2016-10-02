@@ -2,11 +2,13 @@ extends layout
 
 block content
   h1 Create post
-  form(method="post", action="/api/post")
+  form(method="post", action="/api/post", enctype="multipart/form-data")
     label(for="title") Title: 
     input(type="text", name="title", required)
     br
     label(for="content") Description: 
     textarea(name="content")
+    br
+    input(type="file", name="image")
     br
     button(type="submit") Create

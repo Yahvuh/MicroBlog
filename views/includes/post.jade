@@ -2,6 +2,9 @@ a(href="/@#{user.handle}/#{post.postID}")
   h1 #{post.title} by #{user.handle}
 p #{post.content}
 
+if post.image
+  img(src="/uploads/#{post.image}")
+
 if sameUser
   form(method="post", action="/api/edit/#{post.postID}")
     label(for="title") Title: 

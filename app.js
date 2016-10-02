@@ -23,7 +23,7 @@ app.set('view engine', '.jade');
 //app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true , uploadDir: __dirname + 'public/uploads'}));
 app.use(cookieParser());
 
 //Don't actually use secret in production.
