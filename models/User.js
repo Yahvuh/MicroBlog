@@ -10,6 +10,7 @@ const User = new Schema({
   // name initially starts out as twitter handle, but the user can change it
   name: String,
   description: String,
+  image: {type: String, default: 'default.jpg'},
   handle: {type: String, index: true, unique: true},
   savedPosts: {type: Array, index: true, unique: true}
 });

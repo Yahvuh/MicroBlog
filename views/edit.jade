@@ -3,7 +3,7 @@ extends layout
 block content
   h1 Edit profile
   b Names and handles can only be alphanumeric
-  form(method="post", action="/api/profile")
+  form(method="post", action="/api/profile", enctype="multipart/form-data")
     label(for="name") Name:
     input(type="text", name="name", placeholder="#{user.name}", value="#{user.name}" required)
     br
@@ -12,5 +12,9 @@ block content
     br
     label(for="description") Description: 
     textarea(name="description")
+    br
+    input(type="file", name="profile")
+    br
+    img(src="uploads/#{user.image}")
     br
     button(type="submit") Edit

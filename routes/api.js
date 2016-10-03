@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // /api routing
-router.post('/profile', function(req, res, done) {
+router.post('/profile', upload.single('profile'), function(req, res) {
   if(!req.user) {
     return res.sendStatus(401);
   }
@@ -41,12 +41,19 @@ router.post('/profile', function(req, res, done) {
     user.handle = req.body.handle;
     user.description = req.body.description;
 
+    // TODO: Switch this to a pre hook inside mongoose schema?
+    if(user.image !== 'default.jpg' && req.file) {
+      fs.unlink('public/uploads/' + user.image);
+      user.image = req.file.filename;
+    } else if(req.file) {
+      user.image = req.file.filename;
+    }
+
     user.save(function(err) {
       if(err)
         console.error(err);
 
       console.log('Updated user successfully');
-      return done(null, user);
     });
   });
 

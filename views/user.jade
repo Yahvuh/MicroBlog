@@ -3,6 +3,7 @@ extends layout
 block content
   div#info
     h1 User #{user.handle} profile
+    img(src="/uploads/#{user.image}")
     p #{user.name}
     p #{user.description}
     if sameUser
