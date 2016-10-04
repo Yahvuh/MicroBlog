@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "nodemon ./bin/www",
+    "watch": "nodemon -e sass -x \"npm run build\"",
+    "build": "node-sass --include-path sass sass/style.sass public/stylesheets/style.css"
   },
   "dependencies": {
     "bcryptjs": "^2.3.0",
@@ -15,6 +17,7 @@
     "mongoose": "^4.4.19",
     "morgan": "~1.7.0",
     "multer": "^1.2.0",
+    "node-sass": "^3.10.1",
     "passport": "^0.3.2",
     "passport-twitter": "^1.0.4",
     "pug": "^2.0.0-beta4",

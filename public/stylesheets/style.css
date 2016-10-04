@@ -1,97 +1,51 @@
 /*= = = Nav Bar = = =*/
-
-nav
-{
-  background-color: #e3e3e3;
-}
-
-nav ul
-{
-  list-style-type: none;
-  margin: 0;
-}
-
-nav ul li
-{
-  display: inline;
-  padding: 10px;
-}
+nav {
+  background-color: #e3e3e3; }
+  nav ul {
+    list-style-type: none;
+    margin: 0; }
+    nav ul li {
+      display: inline;
+      padding: 10px; }
 
 /*= = = End of Nav = = =*/
+.post {
+  border: 1px solid black; }
 
-/*= = = Login Page = = =*/
+#addPost {
+  display: none; }
 
-.loginForm
-{
-  display: none;
-}
-
-.registerForm
-{
-  display: none;
-}
-
-/*= = = End of Login = = =*/
-.post
-{
-  border: 1px solid black;
-}
-
-#addPost
-{
-  display: none;
-}
-
-.editPost
-{
-  display: none;
-}
+.editPost {
+  display: none; }
 
 /*= = = User Posts = = =*/
-
-.singlePost
-{
+.singlePost {
   margin: 0 auto;
   width: 90%;
   border: 1px solid black;
-  padding: 10px
-}
+  padding: 10px; }
 
-.timeStamp
-{
-  text-align: right;
-}
+.timeStamp {
+  text-align: right; }
 
-.postContent
-{
+.postContent {
   background-color: #e5e5e5;
-  padding: 5px;
-}
+  padding: 5px; }
 
 /*= = = End User Posts = = =*/
-
-
 /*= = = Misc Styles = = =*/
-
 /*Forces new line from Text area*/
-p
-{
-  white-space: pre;
-}
+p {
+  white-space: pre; }
 
-/*General cetnering class*/
-.center
-{
-  text-align: center;
-}
+/*General centering class*/
+.center {
+  text-align: center; }
 
-ul
-{
-  list-style-type: none;
-}
+ul {
+  list-style-type: none; }
 
 .border {
-  border: 1px solid black;
-}
+  border: 1px solid black; }
 
 /*= = = End Misc Styles = = =*/
