@@ -1,15 +1,16 @@
 nav
   ul.center
     if !loggedIn
-      li 
-        a(href="/auth/twitter") 
+      li
+        a(href="/auth/twitter")
           img(src="https://g.twimg.com/dev/sites/default/files/images_documentation/sign-in-with-twitter-gray.png")
     if loggedIn
       li
         a(href="/create") Post
       li
         // TODO: when viewing someone elses profile, this link won't take you to your profile
-        //It will only take it to theirs, due to what user.hanmdle is
-        a(href="/@#{user.handle}") Profile
+        //It will only take it to theirs, due to what user.handle is
+        - var profLink = "/@" + user.handle
+        a(href='/@' + user.handle) Profile
       li
         a(href="/logout") Logout

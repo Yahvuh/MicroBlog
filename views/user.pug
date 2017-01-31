@@ -3,7 +3,7 @@ extends layout
 block content
   div#info
     h1 User #{user.handle} profile
-    img(src="/uploads/#{user.image}")
+    img(src="/uploads/" + user.image)
     p #{user.name}
     p #{user.description}
     if sameUser
@@ -14,4 +14,4 @@ block content
         p This user has not posted anything
       each post in userPosts
         div.post
-          include ./includes/post.jade
+          include ./includes/post.pug

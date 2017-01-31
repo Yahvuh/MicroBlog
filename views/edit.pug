@@ -5,16 +5,16 @@ block content
   b Names and handles can only be alphanumeric
   form(method="post", action="/api/profile", enctype="multipart/form-data")
     label(for="name") Name:
-    input(type="text", name="name", placeholder="#{user.name}", value="#{user.name}" required)
+    input(type="text", name="name", placeholder=user.name, value=user.name required)
     br
-    label(for="handle") Handle: 
-    input(type="text", name="handle", placeholder="#{user.handle}", value="#{user.handle}", required)
+    label(for="handle") Handle:
+    input(type="text", name="handle", placeholder=user.handle, value=user.handle, required)
     br
-    label(for="description") Description: 
+    label(for="description") Description:
     textarea(name="description")
     br
     input(type="file", name="profile")
     br
-    img(src="uploads/#{user.image}")
+    img(src="uploads/" + user.image)
     br
     button(type="submit") Edit

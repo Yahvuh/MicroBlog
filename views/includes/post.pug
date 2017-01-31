@@ -1,20 +1,20 @@
-a(href="/@#{user.handle}/#{post.postID}")
+a(href="/@" + user.handle + "/" + post.postID)
   h1 #{post.title} by #{user.handle}
 p #{post.content}
 
 if post.image
-  img(src="/uploads/#{post.image}")
+  img(src="/uploads/" + post.image)
 
 if sameUser
-  form(method="post", action="/api/edit/#{post.postID}")
-    label(for="title") Title: 
-    input(type="text", name="title", placeholder="#{post.title}", required, value="#{post.title}")
+  form(method="post", action="/api/edit/" + post.postID)
+    label(for="title") Title:
+    input(type="text", name="title", placeholder=post.title, required, value=post.title)
     br
-    label(for="content") Description: 
-    textarea(name="content", placeholder="#{post.content}") #{post.content}
+    label(for="content") Description:
+    textarea(name="content", placeholder=post.content) #{post.content}
     br
     button(type="submit") Edit
-  form(method="post", action="/api/post/#{post.postID}")
+  form(method="post", action="/api/post/" + post.postID)
     button(type="submit") Delete
 
 // only render the save button if the user is logged in
@@ -29,17 +29,17 @@ if loggedIn
   - for(var i=0;i<user.savedPosts.length; i++) {
     - if(post.postID === user.savedPosts[i].postID) {
       - saved = true
-    - } 
+    - }
   - }
 
   if saved
-    form(method="post", action="/api/unsave/#{post.postID}")
+    form(method="post", action="/api/unsave/" + post.postID)
       button(type="submit") Unsave
   else
-    form(method="post", action="/api/save/#{post.postID}")
+    form(method="post", action="/api/save/" + post.postID)
       button(type="submit") Save
 
-  form(method="post", action="/api/comment/#{post.postID}")
+  form(method="post", action="/api/comment/" + post.postID)
     label(for="comment") Comment
     br
     textarea(name="comment")
@@ -49,12 +49,12 @@ if loggedIn
 h3 Comments for this post
 each comment in post.comments
   div.border
-    a(href="/@#{comment.handle}") #{comment.handle}
+    a(href="/@" + comment.handle) #{comment.handle}
     p #{comment.comment}
     if sameUser
-      form(method="post", action="/api/uncomment/#{post.postID}/#{comment._id}")
+      form(method="post", action="/api/uncomment/" + post.postID + "/" + comment._id)
         button(type="submit") Remove
-      form(method="post", action="/api/edit/#{post.postID}/#{comment._id}")
+      form(method="post", action="/api/edit/" + post.postID + "/" + comment._id)
         label(for="comment") Edit comment
         br
         textarea(name="comment")
